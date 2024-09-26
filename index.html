@@ -9,6 +9,8 @@
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             text-align: center;
+            position: relative;
+            height: 100vh; /* Задаем высоту для центрирования */
         }
 
         h1 {
@@ -16,9 +18,12 @@
         }
 
         #hamster {
-            width: 100px;
-            position: absolute;
-            transition: all 0.3s;
+            width: 554px; /* Устанавливаем ширину изображения */
+            height: 554px; /* Устанавливаем высоту изображения */
+            position: absolute; /* Фиксируем позицию */
+            left: 50%; /* Центрируем по горизонтали */
+            top: 50%; /* Центрируем по вертикали */
+            transform: translate(-50%, -50%); /* Центрируем хомяка */
         }
 
         #score {
@@ -29,27 +34,18 @@
 </head>
 <body>
     <h1>Тапни по хомяку!</h1>
-    <img id="hamster" src="https://via.placeholder.com/100x100" alt="Hamster">
+    <img id="hamster" src="https://raw.githubusercontent.com/tytik49/KRISA/main/hamster.png" alt="Hamster">
     <div id="score">Счет: 0</div>
 
     <script>
-        let score = 0;
+        let score = localStorage.getItem('score') ? parseInt(localStorage.getItem('score')) : 0;
         const hamster = document.getElementById("hamster");
-
-        function moveHamster() {
-            const x = Math.random() * (window.innerWidth - 100);
-            const y = Math.random() * (window.innerHeight - 100);
-            hamster.style.left = `${x}px`;
-            hamster.style.top = `${y}px`;
-        }
 
         hamster.addEventListener("click", function() {
             score++;
             document.getElementById("score").textContent = `Счет: ${score}`;
-            moveHamster();
+            localStorage.setItem('score', score);
         });
-
-        moveHamster();
     </script>
 </body>
 </html>
