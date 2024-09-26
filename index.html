@@ -53,9 +53,11 @@
     <button id="tapButton">Тапни по хомяку!</button>
 
     <script>
-        // Проверяем, есть ли сохраненный счет и отображаем его
-        let score = localStorage.getItem('score') ? parseInt(localStorage.getItem('score')) : 0;
-        document.getElementById("scoreValue").textContent = score; // Отображаем сохраненный счет
+        // Получаем сохраненный счет из localStorage
+        let score = parseInt(localStorage.getItem('score')) || 0;
+        
+        // Отображаем сохраненный счет на странице
+        document.getElementById("scoreValue").textContent = score; 
 
         const tapButton = document.getElementById("tapButton");
 
