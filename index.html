@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tap the Hamster!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4CAF50;
+        }
+
+        #hamster {
+            width: 100px;
+            position: absolute;
+            transition: all 0.3s;
+        }
+
+        #score {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тапни по хомяку!</h1>
+    <img id="hamster" src="https://via.placeholder.com/100x100" alt="Hamster">
+    <div id="score">Счет: 0</div>
+
+    <script>
+        let score = 0;
+        const hamster = document.getElementById("hamster");
+
+        function moveHamster() {
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 100);
+            hamster.style.left = `${x}px`;
+            hamster.style.top = `${y}px`;
+        }
+
+        hamster.addEventListener("click", function() {
+            score++;
+            document.getElementById("score").textContent = `Счет: ${score}`;
+            moveHamster();
+        });
+
+        moveHamster();
+    </script>
+</body>
+</html>
