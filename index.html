@@ -18,8 +18,8 @@
         }
 
         #hamster {
-            width: 300px; /* Новая ширина */
-            height: 300px; /* Новая высота */
+            width: 300px; /* Установленный размер */
+            height: 300px; /* Установленный размер */
             position: absolute; 
             left: 50%; 
             top: 50%; 
@@ -30,20 +30,40 @@
             font-size: 24px;
             margin-top: 20px;
         }
+
+        button {
+            background-color: blue; /* Синий цвет кнопки */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        button:hover {
+            background-color: darkblue; /* Более темный синий при наведении */
+        }
     </style>
 </head>
 <body>
     <h1>Тапни по хомяку!</h1>
     <img id="hamster" src="https://raw.githubusercontent.com/tytik49/KRISA/main/hamster.png" alt="Hamster">
-    <div id="score">Счет: 0</div>
+    <div id="score">Счет: <span id="scoreValue">0</span></div>
+    <button id="tapButton">Тапни по хомяку!</button>
 
     <script>
+        // Проверяем, есть ли сохраненный счет
         let score = localStorage.getItem('score') ? parseInt(localStorage.getItem('score')) : 0;
-        const hamster = document.getElementById("hamster");
+        document.getElementById("scoreValue").textContent = score; // Отображаем сохраненный счет
 
-        hamster.addEventListener("click", function() {
+        const hamster = document.getElementById("hamster");
+        const tapButton = document.getElementById("tapButton");
+
+        // Обработчик клика по кнопке
+        tapButton.addEventListener("click", function() {
             score++;
-            document.getElementById("score").textContent = `Счет: ${score}`;
+            document.getElementById("scoreValue").textContent = score;
             localStorage.setItem('score', score);
         });
     </script>
