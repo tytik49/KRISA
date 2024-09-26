@@ -53,18 +53,17 @@
     <button id="tapButton">Тапни по хомяку!</button>
 
     <script>
-        // Проверяем, есть ли сохраненный счет
+        // Проверяем, есть ли сохраненный счет и отображаем его
         let score = localStorage.getItem('score') ? parseInt(localStorage.getItem('score')) : 0;
         document.getElementById("scoreValue").textContent = score; // Отображаем сохраненный счет
 
-        const hamster = document.getElementById("hamster");
         const tapButton = document.getElementById("tapButton");
 
         // Обработчик клика по кнопке
         tapButton.addEventListener("click", function() {
             score++;
-            document.getElementById("scoreValue").textContent = score;
-            localStorage.setItem('score', score);
+            document.getElementById("scoreValue").textContent = score; // Обновляем счет на экране
+            localStorage.setItem('score', score); // Сохраняем счет в localStorage
         });
     </script>
 </body>
