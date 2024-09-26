@@ -6,15 +6,19 @@
     <title>Tap the Hamster!</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #a8e0ff, #c3f1ff); /* Градиентный фон */
             text-align: center;
             position: relative;
             height: 100vh;
+            overflow: hidden; /* Скрываем прокрутку */
         }
 
         h1 {
             color: #4CAF50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Тень для заголовка */
+            margin-top: 20px;
+            font-size: 36px; /* Увеличенный размер шрифта */
         }
 
         #hamster {
@@ -24,25 +28,20 @@
             left: 50%; 
             top: 50%; 
             transform: translate(-50%, -50%); 
+            cursor: pointer; /* Изменяем курсор на указатель */
+            transition: transform 0.1s; /* Анимация при нажатии */
+        }
+
+        #hamster:active {
+            transform: translate(-50%, -50%) scale(0.9); /* Уменьшение изображения при нажатии */
         }
 
         #score {
             font-size: 24px;
             margin-top: 20px;
-        }
-
-        button {
-            background-color: blue; /* Синий цвет кнопки */
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        button:hover {
-            background-color: darkblue; /* Более темный синий при наведении */
+            color: #333; /* Цвет текста */
+            font-weight: bold; /* Жирный текст */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Тень для текста счета */
         }
     </style>
 </head>
@@ -50,7 +49,6 @@
     <h1>Тапни по хомяку!</h1>
     <img id="hamster" src="https://raw.githubusercontent.com/tytik49/KRISA/main/hamster.png" alt="Hamster">
     <div id="score">Счет: <span id="scoreValue">0</span></div>
-    <button id="tapButton">Тапни по хомяку!</button>
 
     <script>
         // Получаем сохраненный счет из localStorage
@@ -59,10 +57,10 @@
         // Отображаем сохраненный счет на странице
         document.getElementById("scoreValue").textContent = score; 
 
-        const tapButton = document.getElementById("tapButton");
+        const hamster = document.getElementById("hamster");
 
-        // Обработчик клика по кнопке
-        tapButton.addEventListener("click", function() {
+        // Обработчик клика по изображению хомяка
+        hamster.addEventListener("click", function() {
             score++;
             document.getElementById("scoreValue").textContent = score; // Обновляем счет на экране
             localStorage.setItem('score', score); // Сохраняем счет в localStorage
