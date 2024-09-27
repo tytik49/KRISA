@@ -59,6 +59,10 @@
             margin: 10% auto;
             width: 50%;
         }
+        .timer {
+            font-size: 14px;
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -81,66 +85,113 @@
             <h2>Майнинг карточки</h2>
             <div class="card" onclick="buyCard(100, 1)">
                 Карточка 1 (100 монет) - +1 монета/минуту
+                <div class="timer" id="timer1"></div>
             </div>
             <div class="card" onclick="buyCard(500, 5)">
                 Карточка 2 (500 монет) - +5 монет/минуту
+                <div class="timer" id="timer2"></div>
             </div>
             <div class="card" onclick="buyCard(1000, 10)">
                 Карточка 3 (1000 монет) - +10 монет/минуту
+                <div class="timer" id="timer3"></div>
             </div>
             <button onclick="closeMining()">Закрыть</button>
         </div>
     </div>
 
     <script>
-        let coins = 0; // Счётчик монет
-        let income = 0; // Доход от карточек
-        let totalIncome = 0; // Доход за минуту
+        let coins = localStorage.getItem('coins') ? parseInt(localStorage.getItem('coins')) : 0;
+        let income = localStorage.getItem('income') ? parseInt(localStorage.getItem('income')) : 0;
+        let miningDuration = 3 * 60 * 60 * 1000; // 3 часа в миллисекундах
+        let timers = [0, 0, 0]; // Для карточек
 
-        // Тап по хомяку для увеличения счётчика монет
+        // Обновление таймеров с сохранением прогресса
+        if (localStorage.getItem('timers')) {
+            timers = JSON.parse(localStorage.getItem('timers'));
+        }
+
         function tapHamster() {
             coins += 1;
             updateCoinsDisplay();
+            saveProgress();
         }
 
-        // Открытие окна для майнинга
         function openMining() {
             document.getElementById('miningModal').style.display = 'block';
         }
 
-        // Закрытие окна для майнинга
         function closeMining() {
             document.getElementById('miningModal').style.display = 'none';
         }
 
-        // Покупка карточки для увеличения дохода
         function buyCard(price, incomeIncrease) {
             if (coins >= price) {
                 coins -= price;
                 income += incomeIncrease;
                 updateCoinsDisplay();
                 updateIncomeDisplay();
-                startMining(incomeIncrease);
+
+                // Запуск таймера на 3 часа для каждой карточки
+                let cardIndex = incomeIncrease === 1 ? 0 : incomeIncrease === 5 ? 1 : 2;
+                timers[cardIndex] = Date.now() + miningDuration; 
+                startMining(cardIndex, incomeIncrease);
+
+                saveProgress();
             } else {
                 alert('Недостаточно монет!');
             }
         }
 
-        // Начало майнинга (увеличение дохода)
-        function startMining(incomeIncrease) {
+        function startMining(cardIndex, incomeIncrease) {
             setInterval(function() {
-                coins += incomeIncrease;
-                updateCoinsDisplay();
+                let currentTime = Date.now();
+                if (currentTime < timers[cardIndex]) {
+                    coins += incomeIncrease;
+                    updateCoinsDisplay();
+                    updateTimersDisplay();
+                }
             }, 60000); // Каждая минута
         }
 
-        // Обновление отображения количества монет
         function updateCoinsDisplay() {
             document.getElementById('coinCount').innerText = coins;
         }
 
-        // Обновление отображения дохода от карточек
         function updateIncomeDisplay() {
+            document.getElementById('incomePerMinute').innerText = income;
+        }
+
+        function updateTimersDisplay() {
+            for (let i = 0; i < timers.length; i++) {
+                let timeRemaining = timers[i] - Date.now();
+                if (timeRemaining > 0) {
+                    let hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+                    let minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                    document.getElementById('timer' + (i + 1)).innerText = `Осталось: ${hours}ч ${minutes}м`;
+                } else {
+                    document.getElementById('timer' + (i + 1)).innerText = 'Истек';
+                }
+            }
+        }
+
+        // Сохранение прогресса в localStorage
+        function saveProgress() {
+            localStorage.setItem('coins', coins);
+            localStorage.setItem('income', income);
+            localStorage.setItem('timers', JSON.stringify(timers));
+        }
+
+        // Восстановление дохода при перезагрузке страницы
+        window.onload = function() {
+            updateCoinsDisplay();
+            updateIncomeDisplay();
+            updateTimersDisplay();
+        }
+
+    </script>
+</body>
+</html>
+function updateIncomeDisplay() {
             document.getElementById('incomePerMinute').innerText = income;
         }
 
