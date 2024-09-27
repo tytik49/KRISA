@@ -11,60 +11,183 @@
             text-align: center;
             position: relative;
             height: 100vh;
-            overflow: hidden; /* Скрываем прокрутку */
+            overflow: hidden;
         }
 
         h1 {
             color: #4CAF50;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Тень для заголовка */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
             margin-top: 20px;
-            font-size: 36px; /* Увеличенный размер шрифта */
+            font-size: 36px;
         }
 
         #hamster {
-            width: 300px; /* Установленный размер */
-            height: 300px; /* Установленный размер */
-            position: absolute; 
-            left: 50%; 
-            top: 50%; 
-            transform: translate(-50%, -50%); 
-            cursor: pointer; /* Изменяем курсор на указатель */
-            transition: transform 0.1s; /* Анимация при нажатии */
+            width: 250px;
+            height: 250px;
+            position: absolute;
+            left: 50%;
+            top: 20%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: transform 0.1s;
         }
 
         #hamster:active {
-            transform: translate(-50%, -50%) scale(0.9); /* Уменьшение изображения при нажатии */
+            transform: translate(-50%, -50%) scale(0.8); /* Анимация уменьшения при клике */
         }
 
-        #score {
-            font-size: 24px;
+        #coins {
+            font-size: 36px;
             margin-top: 20px;
-            color: #333; /* Цвет текста */
-            font-weight: bold; /* Жирный текст */
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Тень для текста счета */
+            color: #333;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        #progress-bar {
+            width: 80%;
+            margin: 20px auto;
+            height: 30px;
+            background-color: #ddd;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        #progress {
+            height: 100%;
+            width: 0;
+            background-color: #4CAF50;
+            border-radius: 15px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        #mining-section {
+            margin-top: 50px;
+            padding: 20px;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .card {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            width: 150px;
+            text-align: center;
+            background-color: #fff;
+        }
+
+        .card h3 {
+            font-size: 18px;
+        }
+
+        .card button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .card button:disabled {
+            background-color: #aaa;
         }
     </style>
 </head>
 <body>
     <h1>Тапни по хомяку!</h1>
     <img id="hamster" src="https://raw.githubusercontent.com/tytik49/KRISA/main/hamster.png" alt="Hamster">
-    <div id="score">Счет: <span id="scoreValue">0</span></div>
+    <div id="coins">Монеты: <span id="coinsValue">0</span></div>
+    <div id="progress-bar">
+        <div id="progress"></div>
+    </div>
+
+    <div id="mining-section">
+        <h2>Майнинг</h2>
+        <div class="card">
+            <h3>Майнинг ферма</h3>
+            <p>Доход: 5 монет/час</p>
+            <button id="buyFarm" onclick="buyCard('farm', 100)">Купить за 100 монет</button>
+        </div>
+        <div class="card">
+            <h3>Хомяк-майнер</h3>
+            <p>Доход: 10 монет/час</p>
+            <button id="buyHamsterMiner" onclick="buyCard('hamsterMiner', 200)">Купить за 200 монет</button>
+        </div>
+    </div>
+
+    <audio id="tapSound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio> <!-- Добавляем звук -->
 
     <script>
-        // Получаем сохраненный счет из localStorage
-        let score = parseInt(localStorage.getItem('score')) || 0;
-        
-        // Отображаем сохраненный счет на странице
-        document.getElementById("scoreValue").textContent = score; 
+        let coins = parseInt(localStorage.getItem('coins')) || 0;
+        let progress = 0;
+        const progressStep = 10; // Шаг прогресса до следующего уровня
+        let miningIncome = parseInt(localStorage.getItem('miningIncome')) || 0;
+        let lastIncomeTime = localStorage.getItem('lastIncomeTime') || Date.now();
+
+        document.getElementById("coinsValue").textContent = coins;
 
         const hamster = document.getElementById("hamster");
+        const tapSound = document.getElementById("tapSound");
 
-        // Обработчик клика по изображению хомяка
         hamster.addEventListener("click", function() {
-            score++;
-            document.getElementById("scoreValue").textContent = score; // Обновляем счет на экране
-            localStorage.setItem('score', score); // Сохраняем счет в localStorage
+            coins++;
+            document.getElementById("coinsValue").textContent = coins;
+            localStorage.setItem('coins', coins);
+
+            // Анимация счета
+            document.getElementById("coins").style.transform = "scale(1.2)";
+            setTimeout(() => {
+                document.getElementById("coins").style.transform = "scale(1)";
+            }, 150);
+
+            // Звук при клике
+            tapSound.play();
         });
+
+        function buyCard(card, price) {
+            if (coins >= price) {
+                coins -= price;
+                document.getElementById("coinsValue").textContent = coins;
+                localStorage.setItem('coins', coins);
+
+                // Доход от карточек
+                if (card === 'farm') {
+                    miningIncome += 5;
+                } else if (card === 'hamsterMiner') {
+                    miningIncome += 10;
+                }
+                localStorage.setItem('miningIncome', miningIncome);
+
+                document.getElementById(`buy${capitalizeFirstLetter(card)}`).disabled = true;
+            }
+        }
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        function updateMiningIncome() {
+            const now = Date.now();
+            const timeDifference = (now - lastIncomeTime) / (1000 * 60 * 60); // Время в часах
+
+            if (timeDifference >= 3) {
+                lastIncomeTime = now;
+                localStorage.setItem('lastIncomeTime', lastIncomeTime);
+                coins += miningIncome * 3; // Начисляем доход за 3 часа
+                document.getElementById("coinsValue").textContent = coins;
+                localStorage.setItem('coins', coins);
+            }
+        }
+
+        // Обновляем доход при каждом заходе на сайт
+        updateMiningIncome();
+
+        setInterval(updateMiningIncome, 1000 * 60); // Проверка раз в минуту
     </script>
 </body>
 </html>
