@@ -1,0 +1,19 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+}
+
+#hamster-container {
+    margin: 20px;
+}
+
+#hamster {
+    width: 554px; /* Убедитесь, что хомяк имеет правильный размер */
+    height: 554px;
+    cursor: pointer;
+}
+
+#mining-button {
+    margin-top: 20px;
+}
