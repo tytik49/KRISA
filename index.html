@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hamster Game with Mining</title>
+    <title>Hamster Game with Mining and Upgrades</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
         }
         .hamster {
             width: 200px;
             cursor: pointer;
         }
-        .income {
+        .income, .coins {
             position: absolute;
             top: 10px;
             right: 10px;
             font-size: 20px;
         }
         .coins {
-            position: absolute;
             top: 50px;
-            right: 10px;
-            font-size: 20px;
         }
         .mining-btn {
             position: fixed;
@@ -36,13 +37,26 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+        }
+        .mining-btn:hover {
+            background-color: #45a049;
         }
         .card {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 10px;
             display: inline-block;
+            width: 150px;
+            height: 200px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .card img {
+            width: 100px;
+            height: 100px;
         }
         #miningModal {
             display: none;
@@ -57,11 +71,20 @@
             background: #fff;
             padding: 20px;
             margin: 10% auto;
-            width: 50%;
+            width: 60%;
+            border-radius: 10px;
         }
-        .timer {
-            font-size: 14px;
-            color: red;
+        .upgrade {
+            background-color: #2196F3;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .upgrade:hover {
+            background-color: #0b7dda;
         }
     </style>
 </head>
@@ -71,7 +94,7 @@
     <img src="hamster.png" class="hamster" onclick="tapHamster()">
     
     <!-- Доход от карточек -->
-    <div class="income">Доход от карточек: <span id="incomePerMinute">0</span> монет/минуту</div>
+    <div class="income">Доход: <span id="incomePerMinute">0</span> монет/минуту</div>
     
     <!-- Количество монет -->
     <div class="coins">Монеты: <span id="coinCount">0</span></div>
@@ -83,17 +106,26 @@
     <div id="miningModal">
         <div class="content">
             <h2>Майнинг карточки</h2>
-            <div class="card" onclick="buyCard(100, 1)">
-                Карточка 1 (100 монет) - +1 монета/минуту
+            <div class="card" onclick="buyCard(100, 1, 0)">
+                <img src="card1.png" alt="Card 1">
+                <p>Карточка 1 (100 монет)</p>
+                <p>+1 монета/минуту</p>
+                <button class="upgrade" onclick="upgradeCard(0, 50)">Улучшить за 50 монет</button>
+                <div class="timer" id="timer0"></div>
+            </div>
+            <div class="card" onclick="buyCard(500, 5, 1)">
+                <img src="card2.png" alt="Card 2">
+                <p>Карточка 2 (500 монет)</p>
+                <p>+5 монет/минуту</p>
+                <button class="upgrade" onclick="upgradeCard(1, 250)">Улучшить за 250 монет</button>
                 <div class="timer" id="timer1"></div>
             </div>
-            <div class="card" onclick="buyCard(500, 5)">
-                Карточка 2 (500 монет) - +5 монет/минуту
+            <div class="card" onclick="buyCard(1000, 10, 2)">
+                <img src="card3.png" alt="Card 3">
+                <p>Карточка 3 (1000 монет)</p>
+                <p>+10 монет/минуту</p>
+                <button class="upgrade" onclick="upgradeCard(2, 500)">Улучшить за 500 монет</button>
                 <div class="timer" id="timer2"></div>
-            </div>
-            <div class="card" onclick="buyCard(1000, 10)">
-                Карточка 3 (1000 монет) - +10 монет/минуту
-                <div class="timer" id="timer3"></div>
             </div>
             <button onclick="closeMining()">Закрыть</button>
         </div>
@@ -102,10 +134,11 @@
     <script>
         let coins = localStorage.getItem('coins') ? parseInt(localStorage.getItem('coins')) : 0;
         let income = localStorage.getItem('income') ? parseInt(localStorage.getItem('income')) : 0;
+        let cardLevels = localStorage.getItem('cardLevels') ? JSON.parse(localStorage.getItem('cardLevels')) : [1, 1, 1];
         let miningDuration = 3 * 60 * 60 * 1000; // 3 часа в миллисекундах
-        let timers = [0, 0, 0]; // Для карточек
+        let timers = [0, 0, 0]; // Таймеры для карточек
 
-        // Обновление таймеров с сохранением прогресса
+        // Восстановление таймеров
         if (localStorage.getItem('timers')) {
             timers = JSON.parse(localStorage.getItem('timers'));
         }
@@ -124,16 +157,15 @@
             document.getElementById('miningModal').style.display = 'none';
         }
 
-        function buyCard(price, incomeIncrease) {
+        function buyCard(price, incomeIncrease, cardIndex) {
             if (coins >= price) {
                 coins -= price;
-                income += incomeIncrease;
+                income += incomeIncrease * cardLevels[cardIndex];
                 updateCoinsDisplay();
                 updateIncomeDisplay();
 
-                // Запуск таймера на 3 часа для каждой карточки
-                let cardIndex = incomeIncrease === 1 ? 0 : incomeIncrease === 5 ? 1 : 2;
-                timers[cardIndex] = Date.now() + miningDuration; 
+                // Запуск таймера
+                timers[cardIndex] = Date.now() + miningDuration;
                 startMining(cardIndex, incomeIncrease);
 
                 saveProgress();
@@ -142,15 +174,54 @@
             }
         }
 
+        function upgradeCard(cardIndex, upgradePrice) {
+            if (coins >= upgradePrice) {
+                coins -= upgradePrice;
+                cardLevels[cardIndex] += 1;
+                income += cardLevels[cardIndex]; // Увеличение дохода
+                updateCoinsDisplay();
+                updateIncomeDisplay();
+                saveProgress();
+            } else {
+                alert('Недостаточно монет для улучшения!');
+            }
+        }
+
         function startMining(cardIndex, incomeIncrease) {
             setInterval(function() {
                 let currentTime = Date.now();
                 if (currentTime < timers[cardIndex]) {
-                    coins += incomeIncrease;
+                    coins += incomeIncrease * cardLevels[cardIndex];
                     updateCoinsDisplay();
                     updateTimersDisplay();
                 }
             }, 60000); // Каждая минута
+        }
+
+        function updateCoinsDisplay() {
+            document.getElementById('coinCount').innerText = coins;
+        }
+
+        function updateIncomeDisplay() {
+            document.getElementById('incomePerMinute').innerText = income;
+        }
+
+        function updateTimersDisplay() {
+            for (let i = 0; i < timers.length; i++) {
+                let timeRemaining = timers[i] - Date.now();
+                if (timeRemaining > 0) {
+                    let hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+                    let minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                    document.getElementById('timer' + i).innerText = `Осталось: ${hours}ч ${minutes}м`;
+                } else {
+                    document.getElementById('timer' + i).innerText = 'Истек';
+                }
+            }
+        }
+
+        function saveProgress() {
+            localStorage.setItem('coins', coins);
+            localStorage.setItem('income            }, 60000); // Каждая минута
         }
 
         function updateCoinsDisplay() {
