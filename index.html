@@ -1,124 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hamster Game with Mining</title>
+    <title>Tap the Hamster!</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #a8e0ff, #c3f1ff); /* Градиентный фон */
             text-align: center;
+            position: relative;
+            height: 100vh;
+            overflow: hidden; /* Скрываем прокрутку */
         }
-        .hamster {
-            width: 200px;
+
+        h1 {
+            color: #4CAF50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Тень для заголовка */
+            margin-top: 20px;
+            font-size: 36px; /* Увеличенный размер шрифта */
         }
-        .income {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 20px;
+
+        #hamster {
+            width: 300px; /* Установленный размер */
+            height: 300px; /* Установленный размер */
+            position: absolute; 
+            left: 50%; 
+            top: 50%; 
+            transform: translate(-50%, -50%); 
+            cursor: pointer; /* Изменяем курсор на указатель */
+            transition: transform 0.1s; /* Анимация при нажатии */
         }
-        .mining-btn {
-            position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+
+        #hamster:active {
+            transform: translate(-50%, -50%) scale(0.9); /* Уменьшение изображения при нажатии */
         }
-        .card {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 10px;
-            display: inline-block;
-        }
-        #miningModal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-        }
-        #miningModal .content {
-            background: #fff;
-            padding: 20px;
-            margin: 10% auto;
-            width: 50%;
+
+        #score {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #333; /* Цвет текста */
+            font-weight: bold; /* Жирный текст */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Тень для текста счета */
         }
     </style>
 </head>
 <body>
-    <h1>Hamster Tap Game</h1>
-    <p>Тапай по хомяку и зарабатывай монеты!</p>
-    <img src="hamster.png" class="hamster" onclick="tapHamster()">
-    
-    <div class="income">Доход: <span id="incomeAmount">0</span> монет</div>
-
-    <!-- Кнопка "Майнинг" -->
-    <button class="mining-btn" onclick="openMining()">Майнинг</button>
-
-    <!-- Модальное окно для майнинга -->
-    <div id="miningModal">
-        <div class="content">
-            <h2>Майнинг карточки</h2>
-            <div class="card" onclick="buyCard(100, 1)">
-                Карточка 1 (100 монет) - +1 монета/минуту
-            </div>
-            <div class="card" onclick="buyCard(500, 5)">
-                Карточка 2 (500 монет) - +5 монет/минуту
-            </div>
-            <div class="card" onclick="buyCard(1000, 10)">
-                Карточка 3 (1000 монет) - +10 монет/минуту
-            </div>
-            <button onclick="closeMining()">Закрыть</button>
-        </div>
-    </div>
+    <h1>Тапни по хомяку!</h1>
+    <img id="hamster" src="https://raw.githubusercontent.com/tytik49/KRISA/main/hamster.png" alt="Hamster">
+    <div id="score">Счет: <span id="scoreValue">0</span></div>
 
     <script>
-        let coins = 0;
-        let income = 0;
+        // Получаем сохраненный счет из localStorage
+        let score = parseInt(localStorage.getItem('score')) || 0;
+        
+        // Отображаем сохраненный счет на странице
+        document.getElementById("scoreValue").textContent = score; 
 
-        function tapHamster() {
-            coins += 1;
-            updateIncomeDisplay();
-        }
+        const hamster = document.getElementById("hamster");
 
-        function openMining() {
-            document.getElementById('miningModal').style.display = 'block';
-        }
-
-        function closeMining() {
-            document.getElementById('miningModal').style.display = 'none';
-        }
-
-        function buyCard(price, incomeIncrease) {
-            if (coins >= price) {
-                coins -= price;
-                income += incomeIncrease;
-                updateIncomeDisplay();
-                startMining(incomeIncrease);
-            } else {
-                alert('Недостаточно монет!');
-            }
-        }
-
-        function startMining(incomeIncrease) {
-            setInterval(function() {
-                coins += incomeIncrease;
-                updateIncomeDisplay();
-            }, 60000); // Каждая минута
-        }
-
-        function updateIncomeDisplay() {
-            document.getElementById('incomeAmount').innerText = coins;
-        }
+        // Обработчик клика по изображению хомяка
+        hamster.addEventListener("click", function() {
+            score++;
+            document.getElementById("scoreValue").textContent = score; // Обновляем счет на экране
+            localStorage.setItem('score', score); // Сохраняем счет в localStorage
+        });
     </script>
 </body>
 </html>
